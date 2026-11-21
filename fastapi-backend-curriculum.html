@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FastAPI Backend Curriculum</title>
+<style>
+:root{
+  --bg:#f6f7fb;--surface:#fff;--surface2:#eef1f8;--text:#1a2033;--muted:#5b6478;--line:#dfe3ee;
+  --brand:#009688;--brand2:#0b7a6f;--accent:#6c5ce7;--warn:#e67e22;--ok:#2e9e5b;
+  --shadow:0 1px 2px rgba(20,30,60,.06),0 6px 24px rgba(20,30,60,.06);--r:14px;
+}
+:root[data-theme="dark"]{
+  --bg:#0f1420;--surface:#171e2e;--surface2:#1f2840;--text:#e8ecf6;--muted:#9aa5bf;--line:#2a3550;
+  --brand:#26c6b5;--brand2:#4fd8c9;--accent:#9b8cff;--shadow:0 1px 2px rgba(0,0,0,.4),0 6px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--brand2)}
+.layout{display:grid;grid-template-columns:270px 1fr;min-height:100vh}
+aside{position:sticky;top:0;height:100vh;overflow:auto;background:var(--surface);border-right:1px solid var(--line);padding:22px 16px}
+aside h2{font-size:15px;margin:0 0 4px;letter-spacing:.3px}
+aside .sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.ring{display:flex;align-items:center;gap:12px;background:var(--surface2);border-radius:12px;padding:10px 12px;margin-bottom:14px}
+.ring svg{flex:none}
+.ring b{font-size:18px;display:block;line-height:1.1}
+.ring span{font-size:12px;color:var(--muted)}
+nav a{display:flex;gap:8px;align-items:center;padding:7px 10px;border-radius:8px;text-decoration:none;color:var(--muted);font-size:14px}
+nav a:hover{background:var(--surface2);color:var(--text)}
+nav a.active{background:var(--brand);color:#fff}
+nav a i{font-style:normal;font-size:11px;font-weight:700;min-width:22px;text-align:center;border-radius:6px;background:var(--surface2);color:var(--text);padding:1px 0}
+nav a.active i{background:rgba(255,255,255,.25);color:#fff}
+nav .sep{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:14px 10px 4px}
+main{padding:0 clamp(18px,4vw,56px) 80px;max-width:1100px;width:100%}
+.hero{margin:0 -56px 28px;padding:56px clamp(18px,4vw,56px) 40px;background:linear-gradient(135deg,#00796b 0%,#009688 45%,#6c5ce7 120%);color:#fff;border-radius:0 0 28px 28px}
+.hero h1{margin:0 0 10px;font-size:clamp(28px,4vw,44px);line-height:1.15}
+.hero p{margin:0;max-width:680px;opacity:.92;font-size:17px}
+.stats{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.stat{background:rgba(255,255,255,.16);backdrop-filter:blur(4px);border-radius:12px;padding:10px 16px}
+.stat b{font-size:22px;display:block}
+.stat span{font-size:12px;opacity:.85}
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 20px;align-items:center}
+.tools input{flex:1;min-width:200px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit}
+button,.btn{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--text);padding:9px 14px;border-radius:10px;font:inherit;font-size:14px}
+button:hover{border-color:var(--brand)}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+h2.sec{font-size:26px;margin:46px 0 6px}
+p.lead{color:var(--muted);margin:0 0 18px;max-width:760px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+.chain{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;counter-reset:c}
+.chain div{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 14px 14px 52px;counter-increment:c}
+.chain div::before{content:counter(c);position:absolute;left:12px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;display:grid;place-items:center;font-size:13px}
+.chain b{display:block;font-size:14px}
+.chain span{font-size:12.5px;color:var(--muted)}
+.chain .opt::before{background:var(--accent)}
+details.phase{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+details.phase.hide{display:none}
+details.phase>summary{list-style:none;cursor:pointer;display:flex;gap:14px;align-items:center;padding:16px 18px}
+details.phase>summary::-webkit-details-marker{display:none}
+.pnum{flex:none;width:44px;height:44px;border-radius:12px;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:800}
+.phase.optional .pnum{background:var(--accent)}
+.ptitle{flex:1;min-width:0}
+.ptitle b{display:block;font-size:18px;line-height:1.3}
+.ptitle small{color:var(--muted)}
+.badge{font-size:12px;padding:3px 10px;border-radius:99px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.pbar{width:90px;height:6px;border-radius:99px;background:var(--surface2);overflow:hidden;flex:none}
+.pbar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+.chev{transition:transform .2s;color:var(--muted)}
+details[open] .chev{transform:rotate(90deg)}
+.pbody{padding:0 20px 20px;border-top:1px solid var(--line)}
+.obj{margin:16px 0;padding:12px 14px;border-left:4px solid var(--brand);background:var(--surface2);border-radius:0 10px 10px 0}
+.topics{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px 14px;margin:0;padding:0;list-style:none}
+.topics li label{display:flex;gap:9px;align-items:flex-start;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:14.5px}
+.topics li label:hover{background:var(--surface2)}
+.topics li.hit label{background:rgba(255,193,7,.25)}
+.topics li.dim{opacity:.3}
+.topics input{margin-top:5px;accent-color:var(--brand);flex:none}
+.topics input:checked+span{color:var(--muted);text-decoration:line-through}
+.topics .n{color:var(--muted);font-size:12px;min-width:18px;margin-top:2px}
+.note{margin-top:16px;padding:12px 14px;border-radius:10px;background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.3);font-size:14.5px}
+.note b{color:var(--accent)}
+.proj{margin-top:14px;padding:12px 14px;border-radius:10px;background:rgba(46,158,91,.1);border:1px solid rgba(46,158,91,.35);font-size:14.5px}
+.proj b{color:var(--ok)}
+code{background:var(--surface2);padding:1px 6px;border-radius:6px;font-size:.9em}
+pre{background:#10172a;color:#e4e9f7;padding:14px 16px;border-radius:12px;overflow:auto;font-size:13.5px;line-height:1.55;margin:12px 0 0}
+table{width:100%;border-collapse:collapse;font-size:14.5px;background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface2);font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.tablewrap{overflow-x:auto;border-radius:12px;margin-bottom:12px}
+.flow{display:flex;flex-direction:column;gap:0;max-width:520px}
+.flow div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 14px;display:flex;gap:12px;align-items:center;font-size:14.5px}
+.flow div+div{margin-top:14px;position:relative}
+.flow div+div::before{content:"↓";position:absolute;top:-16px;left:28px;color:var(--brand);font-weight:700;font-size:14px}
+.flow em{font-style:normal;font-weight:700;color:var(--brand2);min-width:24px}
+.flow span{color:var(--muted);margin-left:auto;font-size:13px;text-align:right}
+.projgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.projgrid .card{margin:0}
+.projgrid h3{margin:6px 0 4px;font-size:17px}
+.projgrid .after{font-size:12px;font-weight:700;color:var(--brand2);text-transform:uppercase;letter-spacing:.6px}
+.projgrid p{margin:6px 0;font-size:14.5px}
+.fw{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.fw div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+.fw b{display:block}
+.fw span{font-size:13.5px;color:var(--muted)}
+.fw i{font-style:normal;display:inline-block;width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;text-align:center;line-height:26px;font-weight:700;font-size:13px;margin-bottom:8px}
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.quiz label{font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px}
+.quiz select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit}
+#plan{margin-top:16px;display:none}
+#plan ol{margin:8px 0 0;padding-left:20px}
+footer{margin-top:50px;color:var(--muted);font-size:13px}
+.menu{display:none}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  aside{position:fixed;z-index:20;left:0;top:0;width:280px;transform:translateX(-100%);transition:transform .25s}
+  aside.open{transform:none;box-shadow:0 0 40px rgba(0,0,0,.4)}
+  .menu{display:block;position:fixed;z-index:30;right:14px;bottom:14px;background:var(--brand);color:#fff;border:0;border-radius:99px;padding:12px 18px;box-shadow:var(--shadow)}
+  .hero{margin:0 -18px 24px}
+  .pbar{display:none}
+}
+@media print{aside,.tools,.menu{display:none}.layout{display:block}details.phase{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside id="side">
+  <h2>FastAPI Backend</h2>
+  <div class="sub">Curriculum · 12 phases</div>
+  <div class="ring">
+    <svg width="46" height="46" viewBox="0 0 46 46"><circle cx="23" cy="23" r="19" fill="none" stroke="var(--line)" stroke-width="5"/><circle id="ringc" cx="23" cy="23" r="19" fill="none" stroke="var(--brand)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 23 23)"/></svg>
+    <div><b id="pct">0%</b><span id="pcttxt">0 of 0 topics</span></div>
+  </div>
+  <nav id="nav"></nav>
+</aside>
+
+<main>
+<section class="hero">
+  <h1>FastAPI Backend Engineering Curriculum</h1>
+  <p>A dependency-ordered path from Python fundamentals to production, distributed systems and AI backends. Each topic prepares you for the next.</p>
+  <div class="stats">
+    <div class="stat"><b>12</b><span>phases</span></div>
+    <div class="stat"><b id="stTopics">0</b><span>topics</span></div>
+    <div class="stat"><b>267 h</b><span>core track</span></div>
+    <div class="stat"><b>~22 wk</b><span>at 12 h/week</span></div>
+    <div class="stat"><b>7</b><span>projects</span></div>
+  </div>
+</section>
+
+<h2 class="sec" id="chain">1. The learning dependency chain</h2>
+<p class="lead">A correct curriculum is not a list of topics in the right order. Each topic should prepare you to understand the next. Testing, security and Git are practised continuously.</p>
+<div class="chain" id="chainBox"></div>
+
+<h2 class="sec" id="phases">2. Phases and topics</h2>
+<p class="lead">Tick topics as you finish them. Progress is saved in this browser.</p>
+<div class="tools">
+  <input id="q" type="search" placeholder="Search topics (e.g. JWT, Redis, async)…">
+  <button id="expand">Expand all</button>
+  <button id="collapse">Collapse all</button>
+  <button id="reset">Reset progress</button>
+  <button id="theme">Dark / light</button>
+</div>
+<div id="phaseBox"></div>
+
+<h2 class="sec" id="lifecycle">3. The FastAPI request lifecycle</h2>
+<p class="lead">If you understand this one workflow, many topics start making sense. It is a conceptual model, not a claim that every internal step runs in exactly this order.</p>
+<div class="card"><div class="flow" id="flow"></div></div>
+<div class="tablewrap"><table id="lifeMap"></table></div>
+
+<h2 class="sec" id="parallel">4. Topics to learn in parallel</h2>
+<div class="tablewrap"><table id="parTable"></table></div>
+<div class="card">
+  <b>Three sequencing decisions</b>
+  <ol>
+    <li>Learn basic testing alongside your first API, not after finishing authentication.</li>
+    <li>Learn authentication before distributed systems, but study attack prevention throughout.</li>
+    <li>Learn Docker basics when setting up PostgreSQL and Redis; study production containerization in Phase 9.</li>
+  </ol>
+</div>
+
+<h2 class="sec" id="projects">5. Project sequence</h2>
+<p class="lead">Build one evolving application. Start with a Student Management API and grow it into a production-ready backend instead of writing 20 unrelated toy apps.</p>
+<div class="projgrid" id="projGrid"></div>
+
+<h2 class="sec" id="timeline">6. Duration</h2>
+<div class="tablewrap"><table id="timeTable"></table></div>
+
+<h2 class="sec" id="method">7. How to study every topic</h2>
+<div class="fw" id="fw"></div>
+<p class="lead" style="margin-top:14px">Matches the per-module routine: concept, live coding, guided lab, pull-request assignment and a five-question quiz.</p>
+
+<h2 class="sec" id="start">8. Find your starting point</h2>
+<div class="card">
+  <div class="quiz">
+    <div><label for="qPy">Python</label><select id="qPy"><option value="b">Beginner</option><option value="i">Intermediate: OOP, functions, decorators</option><option value="a">Advanced: generators, typing, context managers</option></select></div>
+    <div><label for="qSql">SQL</label><select id="qSql"><option value="b">Beginner</option><option value="i">Intermediate: joins, subqueries, CTEs</option><option value="a">Advanced: window functions, indexes, transactions</option></select></div>
+    <div><label for="qAs">Asynchronous Python</label><select id="qAs"><option value="b">I don't know async/await</option><option value="i">I understand the basics</option><option value="a">I understand event loops and concurrency</option></select></div>
+    <div><label for="qGoal">Ultimate goal</label><select id="qGoal"><option value="sr">Senior Python Backend Developer</option><option value="ar">Backend Architect</option><option value="ai">AI/ML Backend Engineer</option><option value="pr">Production-ready Backend Developer</option></select></div>
+  </div>
+  <p><button class="primary" id="gen">Generate my learning starting plan</button></p>
+  <div id="plan" class="note"></div>
+</div>
+
+<footer>Technical scope from the "FastAPI Backend Curriculum — Reviewed and Upgraded" document. Check tool versions (FastAPI, Pydantic v2, SQLAlchemy 2.0) against live docs each term.</footer>
+</main>
+</div>
+<button class="menu" id="menuBtn">Menu</button>
+
+<script>
+const PHASES=[
+{n:0,t:"Python Engineering Prerequisites",tag:"Foundation",h:18,obj:"Become comfortable writing maintainable Python before using a backend framework.",
+ topics:["Functions","Type hints","OOP and dataclasses","Decorators and closures","Exceptions","Generators and yield","Context managers","Modules and packages","Async and await basics","Git and GitHub","Virtual environments and uv","CLI and debugging"],
+ note:"<b>Internal connection:</b> <code>@app.get()</code> is a decorator, <code>get_users()</code> a function, annotations are Python typing, <code>app</code> is an object. Without Python, FastAPI looks like magic.",
+ code:'@app.get("/users")\ndef get_users():\n    return {"users": []}',
+ proj:"Python package with user-management functions, custom exceptions, type hints and reusable classes."},
+{n:1,t:"Backend and Web Fundamentals",tag:"Foundation",h:17,obj:"Understand what FastAPI actually receives and produces: HTTP requests and responses.",
+ topics:["What is backend development?","Client-server architecture","How the internet works","DNS, TCP and TLS fundamentals","What is an API?","REST principles","HTTP request structure","HTTP response structure","HTTP methods","HTTP status codes","Headers, cookies and sessions","JSON","CORS fundamentals","Postman, curl and HTTPie","OpenAPI and Swagger introduction"],
+ note:"<b>Login click:</b> Frontend form → POST /login with JSON body and headers → backend server → database verification → 200 OK or 401 Unauthorized.",
+ proj:"Design and test a Login API contract in Postman, without implementing the backend yet."},
+{n:2,t:"FastAPI Core",tag:"Framework",h:22,obj:"Understand how the framework receives a request and routes it to your code.",
+ topics:["Introduction to FastAPI","FastAPI vs Flask vs Django","ASGI vs WSGI","Uvicorn","Starlette","Pydantic's role in FastAPI","Installation and project setup","First FastAPI application","Routing and path operations","APIRouter","Route prefixes and tags","Path parameters","Query parameters","Request body","Headers and cookies","Form data","File uploads and downloads","Request and Response objects","Custom response classes","Sync vs async endpoint primer"],
+ note:"<b>Connected components, not competitors:</b> Uvicorn is the ASGI server; ASGI is the server-app interface; FastAPI builds the app interface; Starlette supplies core web features; Pydantic validates and serializes.",
+ code:'from fastapi import FastAPI\napp = FastAPI()\n\n@app.get("/products")\ndef get_products():\n    return {"products": ["Laptop", "Mobile"]}',
+ proj:"Product Catalog API with GET, POST, PUT, PATCH and DELETE. Start writing basic tests here."},
+{n:3,t:"Pydantic, Validation and Error Handling",tag:"Data engineering",h:22,obj:"Make Pydantic the validation boundary between untrusted input and business logic.",
+ topics:["Pydantic fundamentals","BaseModel","Data types and optional fields","Field constraints","Nested models","Field validators","Model validators","Discriminated unions","TypeAdapter","Serialization and deserialization","model_dump and model_validate","ConfigDict and aliases","Request models","Response models","Separate create, update and read schemas","HTTPException","Custom exceptions","Exception handlers","Validation error handling","RFC 9457 problem details","pydantic-settings","Environment configuration and secrets"],
+ note:"<b>Why here?</b> Validation and request handling already produce errors, so handle them before building large CRUD apps. Settings come now because database URLs and secret keys are needed next.",
+ code:'{\n  "name": "Laptop",\n  "price": -50000,\n  "quantity": "ten"\n}   // Pydantic rejects this before your logic runs',
+ proj:"Product API with Pydantic validation, response filtering, custom errors and environment-based configuration."},
+{n:4,t:"Dependency Injection and API Design",tag:"Application design",h:22,obj:"Connect FastAPI to database access and authentication through reusable dependencies.",
+ topics:["What is dependency injection?","Why dependency injection?","Depends()","Reusable dependencies","Nested dependencies","Class-based dependencies","Yield dependencies","Router and application-level dependencies","Dependency overrides","Resource and URL design","CRUD design","Correct HTTP methods and status codes","Offset and cursor pagination","Sorting, filtering and search","Bulk operations","Idempotency keys","ETags and conditional requests","API versioning","OpenAPI customization"],
+ note:"<b>The chain:</b> generators and context management → <code>yield</code> dependencies → database sessions → authentication dependencies → test overrides. That is why DI comes before databases and auth.",
+ code:'def get_database():\n    db = "database-session"\n    try:\n        yield db\n    finally:\n        print("Cleanup")\n\n@app.get("/users")\ndef get_users(db: Annotated[str, Depends(get_database)]):\n    return {"database": db}',
+ proj:"Refactor the Product API with reusable dependencies, structured error handling, pagination and filtering."},
+{n:5,t:"Database Engineering",tag:"Core backend skill",h:34,obj:"Learn SQL before SQLAlchemy. An ORM is not a replacement for understanding SQL.",
+ topics:["Relational database fundamentals","PostgreSQL","Database schema design","Normalization","Primary and foreign keys","Constraints","SQL CRUD","Joins","Aggregate functions","Window functions","CTEs","Indexes","EXPLAIN ANALYZE","N+1 problem","Transactions and ACID","Isolation levels and locks","SQLAlchemy ORM","Engine, connection and session","Declarative models and Mapped types","Relationships","ORM CRUD","Filtering and sorting","Joins and eager/lazy loading","Transactions and rollback","Sync and async SQLAlchemy","Session-per-request","Alembic migrations","Schema evolution and data migrations"],
+ note:"<b>How it connects:</b> SQL fundamentals → design and query optimization → SQLAlchemy maps objects to tables → DI manages sessions per request → Alembic manages schema changes. Joins explain ORM relationships; transactions explain commits and rollbacks.",
+ proj:"Student Management System with PostgreSQL, SQLAlchemy, Alembic, relationships, pagination and filtering."},
+{n:6,t:"Authentication and Authorization",tag:"Security fundamentals",h:22,obj:"Separate the different security questions: who you are, what you may do, and whose data it is.",
+ topics:["Authentication vs authorization","Password hashing","Salt and Argon2","Registration API","Login API","JWT structure","JWT signing and verification","Access tokens","Refresh tokens","Refresh token rotation and revocation","OAuth2PasswordBearer","OAuth2 scopes","Cookie vs header token storage","Roles and permissions","RBAC","Object-level ownership","Protected endpoints","OAuth2 authorization code flow","OpenID Connect","Social login","API keys","Multi-tenancy"],
+ note:"<b>Employee app example:</b> Authentication = who are you? Authorization = what may you do? JWT = how the backend verifies identity. RBAC = what your role can do. Ownership = may you see this record? Multi-tenancy = does it belong to your organization?",
+ proj:"Authentication and Authorization Service: registration, login, refresh tokens, Argon2, JWT and RBAC."},
+{n:7,t:"Advanced FastAPI Engineering",tag:"Advanced",h:32,obj:"Connect the fundamentals into a more capable system: concurrency, caching, real-time and integrations.",
+ topics:["Middleware","Middleware execution order","CORS","Request IDs and logging","Lifespan events","Async and await deep dive","Event loop and coroutines","I/O-bound vs CPU-bound","Thread and process pools","Async HTTP using HTTPX","Timeouts and retries","BackgroundTasks","Celery / ARQ / Dramatiq","Redis fundamentals","Caching strategies","Cache invalidation and TTL","Rate limiting","WebSockets","Server-Sent Events","S3-compatible storage","Email integration","Webhooks","Payment integration"],
+ note:"<b>Misconception:</b> <code>async def</code> does not make everything faster. A database await yields control, but a CPU-heavy calculation inside an async endpoint blocks the event loop. Learn the event loop, thread pools and process pools before Redis and task queues.",
+ proj:"E-Commerce Backend with Redis caching, background email tasks, inventory management and payment webhooks."},
+{n:8,t:"Testing and Code Quality",tag:"Quality engineering",h:18,obj:"Prove each component works. Basic testing starts in Phase 2; this phase makes it systematic.",
+ topics:["What is software testing?","Unit testing","Integration testing","Pytest","Fixtures","Parametrization","FastAPI TestClient","HTTPX AsyncClient","pytest-asyncio","Database testing","Dependency overrides","Mocking external services","Test data factories","Code coverage","Mutation testing overview","PEP 8","Ruff","Mypy or Pyright","Pre-commit hooks","Debugging and structured logging"],
+ note:"<b>Connection:</b> replace the production database dependency with a test one. This uses the dependency overrides from Phase 4.",
+ proj:"Employee Management System with automated, authentication and database tests; 80% coverage target."},
+{n:9,t:"Production Architecture and Deployment",tag:"Production engineering",h:40,obj:"Structure, containerize, ship and observe the system.",
+ topics:["Application architecture","Project structure by feature vs layer","Separation of concerns","Router-Service-Repository architecture","Repository pattern","Unit of Work","SOLID principles","Clean Architecture","When not to over-engineer","Docker fundamentals","Dockerfile","Multi-stage builds","Docker Compose","Container security","Uvicorn production configuration","Workers and processes","Nginx and reverse proxy","Load balancers","HTTPS","Health and readiness endpoints","CI/CD","GitHub Actions","Cloud deployment","Kubernetes overview","Structured JSON logging","Correlation IDs","Prometheus metrics","OpenTelemetry tracing","Sentry","Alerts and SLOs","Load testing with Locust or k6","Profiling and performance optimization"],
+ note:"<b>Production request path:</b> load balancer → Uvicorn (ASGI) → FastAPI routing → service layer → SQLAlchemy → PostgreSQL, with Redis caching and OpenTelemetry/logging alongside. <b>Correction:</b> Gunicorn with Uvicorn workers is not a mandatory default; use the option your versions and host support.",
+ proj:"Deploy a Production SaaS Backend with Docker, PostgreSQL, Redis, CI/CD, monitoring and cloud infrastructure."},
+{n:10,t:"Distributed Systems and Advanced Security",tag:"Advanced engineering",h:20,obj:"Move from single APIs to systems that talk to other systems, and fail.",
+ topics:["Monolithic architecture","Modular monolith","Microservices architecture","REST service communication","gRPC fundamentals","Message queues","RabbitMQ","Kafka fundamentals","Redis Pub/Sub and Streams","Event-driven architecture","Outbox pattern","Retries and exponential backoff","Timeouts","Circuit breakers","Idempotent consumers","Sagas","OWASP API Security Top 10","SQL Injection","XSS","CSRF","SSRF","Broken authentication","Broken object-level authorization","CORS misconfiguration","Secure headers","Upload validation","Secrets and key management"],
+ note:"<b>Think about:</b> an order is placed; inventory is reduced; payment fails. What now? What if the same message arrives twice? Retries, idempotency, queues, events and sagas answer these.",
+ proj:"Design and implement a distributed backend workflow with failure handling, idempotency and a documented security threat model."},
+{n:11,t:"AI and LLM Backend Engineering",tag:"Optional specialization",h:20,opt:true,obj:"Use FastAPI as the infrastructure for AI-powered features. Take this after the core track.",
+ topics:["LLM API integration","Async HTTP clients","Structured outputs","Pydantic output validation","Streaming tokens","SSE and WebSockets","Tool calling","Function execution","Token and cost management","Rate limiting","Embeddings","pgvector","Document chunking","Retrieval and reranking","Background ingestion pipelines","RAG evaluation","Prompt injection","Data leakage prevention"],
+ note:"<b>Pipeline:</b> upload API → background ingestion → chunking and embeddings → PostgreSQL + pgvector → retrieval + LLM API → streaming response.",
+ proj:"AI Document Q&A Service with file upload, ingestion, vector search, RAG and streaming responses."}
+];
+const CHAIN=[["Python Engineering Fundamentals","Functions · OOP · Decorators · Generators · Typing · Async"],["Web & HTTP Fundamentals","Client · Server · HTTP · REST · JSON · Status Codes"],["FastAPI Core","ASGI · Uvicorn · Routing · Requests · Responses"],["Pydantic & Error Handling","Validation · Serialization · Settings · Exceptions"],["Dependency Injection & API Design","Depends · CRUD · Pagination · API Contracts"],["Database Engineering","SQL · PostgreSQL · SQLAlchemy · Alembic"],["Authentication & Authorization","Hashing · JWT · OAuth2 · RBAC · Multi-tenancy"],["Advanced Backend Engineering","Middleware · Async · Redis · Background Jobs · WebSockets"],["Testing & Architecture","Pytest · Clean Architecture · Repository Pattern"],["Production Backend Engineering","Docker · CI/CD · Deployment · Monitoring · Performance"],["Distributed Systems & Security","Microservices · Queues · Kafka · OWASP · Resilience"],["Optional: AI/LLM Backend","LLM APIs · Streaming · RAG · Embeddings · pgvector",1]];
+const FLOW=[["Client","Sends HTTP request"],["Uvicorn","Receives ASGI request"],["Middleware","Request-level processing"],["Router","Identifies matching endpoint"],["Validation","Validates parameters and body"],["Dependencies","Resolves resources and services"],["Endpoint","Calls application logic"],["Service","Executes business rules"],["Repository","Handles data access"],["Database","Executes SQL operations"],["Response model","Validates and serializes output"],["Middleware","Processes outgoing response"],["Client","Receives HTTP response"]];
+const LIFEMAP=[["Phase 0","Python language used to implement everything"],["Phase 1","Understand the request entering the server"],["Phase 2","Receive requests and define endpoints"],["Phase 3","Validate input and format output"],["Phase 4","Inject required resources and design APIs"],["Phase 5","Retrieve and persist data"],["Phase 6","Verify identity and permissions"],["Phase 7","Handle concurrency and advanced request processing"],["Phase 8","Test every stage"],["Phase 9","Run and monitor the complete system"],["Phase 10","Handle communication and failure across services"],["Phase 11","Serve AI-powered application features"]];
+const PAR=[["Git","Phase 0","Every project"],["Testing","Phase 2","Phase 8"],["Exception handling","Phase 0","Phase 3"],["Security","Phase 1","Phases 6 and 10"],["Async","Phase 0","Phase 7"],["Logging","Phase 3","Phase 9"],["Docker","Phase 5","Phase 9"],["API documentation","Phase 1","Phase 4"],["Performance","Phase 5","Phase 9"],["Architecture","Phase 2","Phase 9"]];
+const PROJ=[["Student Management System","After Phase 5","CRUD, PostgreSQL, ORM, validation, pagination and migrations.","All endpoints documented and migrations reviewed."],["Authentication and Authorization Service","After Phase 6","JWT, Argon2, refresh token rotation and RBAC.","Refresh-token reuse detection and role-based tests."],["E-Commerce Backend","After Phase 7","Inventory, orders, payments, Redis, background tasks and integrations.","Stock never negative under concurrent orders; payment webhook is idempotent."],["Employee Management System","After Phase 8","Testing, relationships, reporting and maintainable architecture.","80% coverage target and N+1 queries eliminated."],["Production SaaS Backend","After Phase 9","Multi-tenancy, Docker, CI/CD, Redis, cloud deployment and observability.","Automated deployment, dashboards, alerts and tenant isolation tests."],["Distributed Backend Capstone","After Phase 10","Design, implement, secure, test and deploy a production-grade backend.","Architecture document, threat model, load-test report and runbook."],["AI Document Q&A Service","Optional · Phase 11","Document processing, embeddings, RAG, pgvector and streaming.","Evaluation tests and prompt-injection test cases."]];
+const TIME=[["Phases 0–3","79","7"],["Phases 4–6","78","6.5"],["Phases 7–9","90","7.5"],["Phase 10","20","2"],["Phase 11 (optional)","20","2"]];
+const FW=[["Problem identification","What problem does this concept solve?"],["Conceptual understanding","What is it? Why do we need it?"],["Internal working","What happens internally when we execute it?"],["Python implementation","Understand the underlying Python concepts."],["FastAPI implementation","Implement it using FastAPI."],["Industry implementation","How production applications use it."],["Debugging and optimization","Failures, edge cases and performance."],["Assessment","Coding task, explain the internal flow, answer interview questions."]];
+
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let store={};
+try{store=JSON.parse(localStorage.getItem("fa-progress")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("fa-progress",JSON.stringify(store))}catch(e){}};
+try{const th=localStorage.getItem("fa-theme");if(th)document.documentElement.dataset.theme=th}catch(e){}
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+// render
+$("#chainBox").innerHTML=CHAIN.map(c=>`<div class="${c[2]?'opt':''}"><b>${c[0]}</b><span>${c[1]}</span></div>`).join("");
+$("#phaseBox").innerHTML=PHASES.map(p=>`
+<details class="phase ${p.opt?'optional':''}" id="p${p.n}" data-n="${p.n}">
+ <summary><div class="pnum">${p.n}</div>
+  <div class="ptitle"><b>${p.t}</b><small>${p.tag} · ${p.topics.length} topics</small></div>
+  <span class="badge">${p.h} h</span><div class="pbar"><i id="bar${p.n}"></i></div><span class="chev">▸</span></summary>
+ <div class="pbody">
+  <div class="obj"><b>Objective:</b> ${p.obj}</div>
+  <ul class="topics">${p.topics.map((t,i)=>{const id=`${p.n}-${i}`;return `<li data-t="${t.toLowerCase()}"><label><input type="checkbox" data-id="${id}" ${store[id]?'checked':''}><span class="n">${i+1}</span><span>${t}</span></label></li>`}).join("")}</ul>
+  <div class="note">${p.note}</div>
+  ${p.code?`<pre>${esc(p.code)}</pre>`:''}
+  <div class="proj"><b>Phase completion project:</b> ${p.proj}</div>
+ </div></details>`).join("");
+$("#nav").innerHTML=`<div class="sep">Phases</div>`+PHASES.map(p=>`<a href="#p${p.n}" data-t="p${p.n}"><i>${p.n}</i>${p.t}</a>`).join("")+`<div class="sep">Guide</div>`+[["chain","Dependency chain"],["lifecycle","Request lifecycle"],["parallel","Parallel topics"],["projects","Projects"],["timeline","Duration"],["method","Study method"],["start","Starting plan"]].map(x=>`<a href="#${x[0]}" data-t="${x[0]}">${x[1]}</a>`).join("");
+$("#flow").innerHTML=FLOW.map((f,i)=>`<div><em>${i+1}</em><b>${f[0]}</b><span>${f[1]}</span></div>`).join("");
+$("#lifeMap").innerHTML=`<tr><th>Curriculum phase</th><th>Lifecycle connection</th></tr>`+LIFEMAP.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
+$("#parTable").innerHTML=`<tr><th>Topic</th><th>Start</th><th>Go deeper</th></tr>`+PAR.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+$("#projGrid").innerHTML=PROJ.map((p,i)=>`<div class="card"><div class="after">${i+1} · ${p[1]}</div><h3>${p[0]}</h3><p>${p[2]}</p><p><b>Acceptance:</b> ${p[3]}</p></div>`).join("");
+$("#timeTable").innerHTML=`<tr><th>Learning block</th><th>Hours</th><th>Approx. weeks (12 h/week)</th></tr>`+TIME.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("")+`<tr><td><b>Core total (0–10)</b></td><td><b>267</b></td><td><b>~22</b></td></tr>`;
+$("#fw").innerHTML=FW.map((f,i)=>`<div><i>${i+1}</i><b>${f[0]}</b><span>${f[1]}</span></div>`).join("");
+$("#stTopics").textContent=PHASES.reduce((a,p)=>a+p.topics.length,0);
+
+// progress
+function update(){
+  let done=0,total=0;
+  PHASES.forEach(p=>{
+    const boxes=$$(`#p${p.n} input[type=checkbox]`),d=boxes.filter(b=>b.checked).length;
+    done+=d;total+=boxes.length;$(`#bar${p.n}`).style.width=(d/boxes.length*100)+"%";
+  });
+  const pc=total?Math.round(done/total*100):0;
+  $("#pct").textContent=pc+"%";$("#pcttxt").textContent=`${done} of ${total} topics`;
+  $("#ringc").style.strokeDashoffset=119.4*(1-pc/100);
+}
+document.addEventListener("change",e=>{
+  if(e.target.matches(".topics input")){store[e.target.dataset.id]=e.target.checked;if(!e.target.checked)delete store[e.target.dataset.id];save();update()}
+});
+update();
+
+// controls
+$("#expand").onclick=()=>$$("details.phase").forEach(d=>d.open=true);
+$("#collapse").onclick=()=>$$("details.phase").forEach(d=>d.open=false);
+$("#reset").onclick=()=>{if(confirm("Reset all progress?")){store={};save();$$(".topics input").forEach(b=>b.checked=false);update()}};
+$("#theme").onclick=()=>{const r=document.documentElement,n=r.dataset.theme==="dark"?"light":"dark";r.dataset.theme=n;try{localStorage.setItem("fa-theme",n)}catch(e){}};
+$("#q").oninput=e=>{
+  const q=e.target.value.trim().toLowerCase();
+  $$("details.phase").forEach(d=>{
+    let any=false;
+    $$("li",d).forEach(li=>{
+      const hit=q&&li.dataset.t.includes(q);
+      li.classList.toggle("hit",!!hit);li.classList.toggle("dim",!!q&&!hit);if(hit)any=true;
+    });
+    d.classList.toggle("hide",!!q&&!any&&!d.querySelector("summary").textContent.toLowerCase().includes(q));
+    if(q&&any)d.open=true;
+  });
+};
+$("#menuBtn").onclick=()=>$("#side").classList.toggle("open");
+$("#nav").onclick=e=>{if(e.target.closest("a"))$("#side").classList.remove("open")};
+
+// scrollspy
+const links=$$("#nav a"),targets=links.map(a=>document.getElementById(a.dataset.t));
+const io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){links.forEach(l=>l.classList.toggle("active",l.dataset.t===en.target.id))}})},{rootMargin:"-20% 0px -70% 0px"});
+targets.forEach(t=>t&&io.observe(t));
+if(location.hash){const d=document.querySelector(location.hash);if(d&&d.tagName==="DETAILS")d.open=true}
+$("#nav").addEventListener("click",e=>{const a=e.target.closest("a");if(a&&a.dataset.t.startsWith("p")){const d=document.getElementById(a.dataset.t);if(d&&d.tagName==="DETAILS")d.open=true}});
+
+// starting plan
+$("#gen").onclick=()=>{
+  const py=$("#qPy").value,sq=$("#qSql").value,as=$("#qAs").value,g=$("#qGoal").value,s=[];
+  if(py==="b")s.push("Start at <b>Phase 0</b> and do all of it. Finish its package project before touching FastAPI.");
+  else if(py==="i")s.push("Skim Phase 0, but study <b>generators, context managers, typing and async basics</b> properly. They power Depends() and sessions.");
+  else s.push("Skip Phase 0 except Git and uv, and start at <b>Phase 1</b>.");
+  if(sq==="b")s.push("Before Phase 5, spend extra time on SQL joins, constraints and transactions. Do not open SQLAlchemy until they feel natural.");
+  else if(sq==="i")s.push("In Phase 5, focus your time on <b>window functions, indexes, EXPLAIN ANALYZE and isolation levels</b>.");
+  else s.push("Move quickly through SQL in Phase 5 and spend your time on session-per-request, eager vs lazy loading and Alembic.");
+  if(as==="b")s.push("Do the async primer in Phase 0 and Phase 2, then treat Phase 7 as a major milestone, not a skim.");
+  else if(as==="i")s.push("Use Phase 7 to learn the event loop, blocking calls and thread pools. Practise spotting a blocking call in an <code>async def</code>.");
+  else s.push("In Phase 7, concentrate on task queues, caching and failure handling rather than async syntax.");
+  if(g==="sr")s.push("Goal emphasis: depth in Phases 4–8. Write tests from Phase 2 and review your own pull requests.");
+  if(g==="ar")s.push("Goal emphasis: Phases 9–10. Write an architecture document and threat model for every project from Project 3 onward.");
+  if(g==="ai")s.push("Goal emphasis: finish Phases 0–7, then take <b>Phase 11</b> early. You still need Phase 5 (pgvector builds on SQL) and Phase 7 (streaming, background jobs).");
+  if(g==="pr")s.push("Goal emphasis: Phases 8–9. Get one project deployed with CI/CD and alerts as early as you can.");
+  s.push("Build one evolving app: begin as a Student Management API and grow it into a production backend.");
+  const p=$("#plan");p.style.display="block";p.innerHTML="<b>Your starting plan</b><ol>"+s.map(x=>`<li>${x}</li>`).join("")+"</ol>";
+};
+</script>
+</body>
+</html>
